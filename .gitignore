@@ -38,3 +38,4 @@ out/
 build/
 vcpkg_installed/
 log/
+example/BitbotSimulation/CheckPoints/policy_lstm*

@@ -2,7 +2,7 @@
   "Scheduler": {
     "dt": 0.001,
     "InferTask": {
-      "PolicyFrequency": 10
+      "PolicyFrequency": 20
     }
   },
   "Workers": {
@@ -34,37 +34,49 @@
     },
     "MotorPDLoop": {
       "Kp": [
+        200,
+        200,
+        300,
+        300,
         60,
         60,
-        100,
-        20,
+        200,
+        200,
+        300,
+        300,
         60,
-        60,
-        100,
-        20
+        60
       ],
       "Kd": [
-        1.5,
-        1.5,
         2.5,
-        0.5,
-        1.5,
-        1.5,
         2.5,
-        0.5
+        2.5,
+        2,
+        2,
+        2,
+        2.5,
+        2.5,
+        2.5,
+        2,
+        2,
+        2
       ]
     },
     "MotorControl": {
       "ControlMode": "Torque",
       "TorqueLimit": [
-        60,
-        60,
-        60,
-        60,
-        60,
-        60,
-        60,
-        60
+        1000,
+        1000,
+        1000,
+        2000,
+        1000,
+        1000,
+        1000,
+        1000,
+        1000,
+        2000,
+        1000,
+        1000
       ],
       "PosFilterWeight": [
         1
@@ -74,13 +86,17 @@
       ],
       "DefaultPosition": [
         0.0,
-        0.3,
-        -0.6,
+        0.0,
+        -0.3,
+        0.6,
         -0.3,
         0.0,
-        0.3,
-        -0.6,
-        -0.3
+        0.0,
+        0.0,
+        -0.3,
+        0.6,
+        -0.3,
+        0.0
       ]
     },
     "ImuProcess": {
@@ -104,15 +120,19 @@
         "IntraNumberThreads": 1
       },
       "Network": {
-        "ModelPath": "C:/Users/ZhouZishun/Documents/Workspace/CtrlZ/example/BitbotSimulation/CheckPoints/policy_1.onnx",
-        //"ModelPath": "/home/owheel/Documents/BITWheelFoot/CheckPoints/policy_1.onnx",
+        // "ModelPath": "/home/zqr-wsl-ubuntu/devel/CtrlZ/example/BitbotSimulation/CheckPoints/policy_lstm_1.onnx",
+        "ModelPath": "/home/zqr-wsl-ubuntu/devel/CtrlZ/example/BitbotSimulation/CheckPoints/policy_lstm_1_Apr17_15-28-4450.onnx",
         "InputNodeNames": [
-          "observation"
+          "observation",
+          "hidden_state",
+          "cell_state"
         ],
         "OutputNodeNames": [
-          "action"
+          "action",
+          "new_hidden_state",
+          "new_cell_state"
         ],
-        "Cycle_time": 0.5,
+        "Cycle_time": 0.8,
         "SwitchTime": 1.0
       },
       "Preprocess": {
@@ -123,21 +143,29 @@
           "dof_pos": 1,
           "dof_vel": 0.05
         },
-        "ClipObservations": 100
+        "ClipObservations": 109
       },
       "Postprocess": {
         "clip_actions": 100,
         "action_scale": [
-          0.5,
-          0.5,
-          0.5,
-          0.5,
-          0.5,
-          0.5,
-          0.5,
-          0.5
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25,
+          0.25
         ],
         "joint_clip_upper": [
+          100,
+          100,
+          100,
+          100,
           100,
           100,
           100,
@@ -148,6 +176,10 @@
           100
         ],
         "joint_clip_lower": [
+          -100,
+          -100,
+          -100,
+          -100,
           -100,
           -100,
           -100,

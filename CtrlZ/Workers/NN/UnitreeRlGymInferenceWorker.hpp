@@ -1,9 +1,9 @@
 /**
  * @file UnitreeRlGymInferenceWorker.hpp
- * @author Qingrui Zhao
- * @brief Support lstm onnx model trained by unitree_rl_gym. For code to export lstm model to onnx format, please refer to  https://github.com/Mr-Zqr/unitree_gym_bitbot/blob/main/legged_gym/utils/helpers.py
+ * @author Zishun Zhou
+ * @brief
  *
- * @date 2025-04-10
+ * @date 2025-03-10
  *
  * @copyright Copyright (c) 2025
  *
@@ -24,7 +24,7 @@ namespace z
     /**
      * @brief UnitreeRlGymInferenceWorker 类型是一个人形机器人推理工人类型，该类实现了Unitree_rl_gym网络兼容的推理功能。
      * @details UnitreeRlGymInferenceWorker 类型是一个人形机器人推理工人类型，该类实现了Unitree_rl_gym网络兼容的推理功能。
-     * Unitree_rl_gym: [https://github.com/unitreerobotics/unitree_rl_gym](https://github.com/unitreerobotics/unitree_rl_gym)
+     * HumanoidGym参见[https://github.com/roboterax/humanoid-gym](https://github.com/roboterax/humanoid-gym)
      *
      * @details config.json配置文件示例：
      * {

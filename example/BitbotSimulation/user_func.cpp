@@ -20,6 +20,7 @@
 #include <fstream>
 #include "types.hpp"
 
+bitbot::MujocoForceSensor *r_force_sensor, *l_force_sensor = nullptr;
 
 void ConfigFunc(const KernelBus& bus, UserData& d)
 {
@@ -36,16 +37,48 @@ void ConfigFunc(const KernelBus& bus, UserData& d)
     d.TaskScheduler = new SchedulerType();
 
     //初始化各个worker
-    d.ImuWorker = new ImuWorkerType(d.TaskScheduler, bus.GetDevice<DeviceImu>(8).value(), cfg_root);
+    d.ImuWorker = new ImuWorkerType(d.TaskScheduler, bus.GetDevice<DeviceImu>(0).value(), cfg_root);
     d.MotorWorker = new MotorWorkerType(d.TaskScheduler, cfg_root, {
-          bus.GetDevice<DeviceJoint>(0).value(),
           bus.GetDevice<DeviceJoint>(1).value(),
           bus.GetDevice<DeviceJoint>(2).value(),
           bus.GetDevice<DeviceJoint>(3).value(),
           bus.GetDevice<DeviceJoint>(4).value(),
           bus.GetDevice<DeviceJoint>(5).value(),
           bus.GetDevice<DeviceJoint>(6).value(),
-          bus.GetDevice<DeviceJoint>(7).value() });
+          bus.GetDevice<DeviceJoint>(7).value(),
+          bus.GetDevice<DeviceJoint>(8).value(),
+          bus.GetDevice<DeviceJoint>(9).value(),
+          bus.GetDevice<DeviceJoint>(10).value(),
+          bus.GetDevice<DeviceJoint>(11).value(),
+          bus.GetDevice<DeviceJoint>(12).value()});
+    
+    l_force_sensor = bus.GetDevice<bitbot::MujocoForceSensor>(15).value();
+    r_force_sensor = bus.GetDevice<bitbot::MujocoForceSensor>(14).value(); 
+
+    // d.ForceSensorWorker = new FlexPatchWorkerType(d.TaskScheduler, cfg_root, {
+    //       bus.GetDevice<bitbot::MujocoForceSensor>(14).value(),
+    //       bus.GetDevice<bitbot::MujocoForceSensor>(15).value()});
+
+    d.ForceSensorWorker = new FlexPatchWorkerType(d.TaskScheduler, 
+        [](SchedulerType * schedular){
+            Vec6 lforce, rforce;
+            lforce(0) = l_force_sensor->GetForceX();
+            lforce(1) = l_force_sensor->GetForceY();
+            lforce(2) = l_force_sensor->GetForceZ();
+            lforce(3) = l_force_sensor->GetTorqueX();
+            lforce(4) = l_force_sensor->GetTorqueY();
+            lforce(5) = l_force_sensor->GetTorqueZ();
+            rforce(0) = r_force_sensor->GetForceX();
+            rforce(1) = r_force_sensor->GetForceY();
+            rforce(2) = r_force_sensor->GetForceZ();
+            rforce(3) = r_force_sensor->GetTorqueX();
+            rforce(4) = r_force_sensor->GetTorqueY();
+            rforce(5) = r_force_sensor->GetTorqueZ();
+
+            schedular->template SetData<"LeftForceSensor">(lforce);
+            schedular->template SetData<"RightForceSensor">(rforce);
+        }, cfg_root);
+
     d.MotorPDWorker = new MotorPDWorkerType(d.TaskScheduler, cfg_root);
     d.Logger = new LoggerWorkerType(d.TaskScheduler, cfg_root);
     d.CommanderWorker = new CmdWorkerType(d.TaskScheduler, cfg_root);
@@ -56,11 +89,13 @@ void ConfigFunc(const KernelBus& bus, UserData& d)
         {
             d.ImuWorker,
             d.MotorPDWorker,
-            d.MotorWorker
+            d.MotorWorker,
+            d.ForceSensorWorker
         });
 
     //创建推理任务列表，并添加worker，设置推理任务频率
-    d.NetInferWorker = new EraxLikeInferWorkerType(d.TaskScheduler, cfg_root);
+    // d.NetInferWorker = new EraxLikeInferWorkerType(d.TaskScheduler, cfg_root);
+    d.NetInferWorker = new UnitreeRlGymInferWorkerType(d.TaskScheduler, cfg_root);
     d.TaskScheduler->CreateTaskList("InferTask", cfg_root["Scheduler"]["InferTask"]["PolicyFrequency"]);
     d.TaskScheduler->AddWorker("InferTask", d.NetInferWorker);
     d.TaskScheduler->AddWorker("InferTask", d.Logger);
